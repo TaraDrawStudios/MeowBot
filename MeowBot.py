@@ -81,21 +81,9 @@ class Client(discord.Client):
 #CHANNEL IDS
 announcements = 1374917836278857769
 welcomeMessage = 1375182087476215838
-pronounChannelId = 1375492842629103647
-
 # Scheduled message storage
 scheduled_messages = []  # list of tuples: (send_time, channel_id, message_text)
 
-# Pronoun message ID tracker
-pronoun_message_id = None
-
-# Pronoun emoji to role mapping
-emoji_to_role = {
-    "🌸": "she/her",
-    "⚔️": "he/him",
-    "🌈": "they/them",
-    "💫": "any pronouns"
-}
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -146,70 +134,6 @@ async def cancel_schedule(interaction: discord.Interaction):
 async def speak(interaction: discord.Interaction, message: str):
     await interaction.response.defer(ephemeral=True)
     await interaction.channel.send(message)
-
-@client.tree.command(name="setup_pronouns", description="(Admin) Post pronoun selection message.")
-async def setup_pronouns(interaction: discord.Interaction):
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message("❌ Only admins can use this.", ephemeral=True)
-        return
-
-    channel = client.get_channel(pronounChannelId)
-    if not channel:
-        await interaction.response.send_message("❌ Channel not found.", ephemeral=True)
-        return
-
-    msg = await channel.send(
-        "**Choose your pronouns:**\n"
-        "🌸 — she/her\n"
-        "⚔️ — he/him\n"
-        "🌈 — they/them\n"
-        "💫 — any pronouns"
-    )
-
-    for emoji in emoji_to_role.keys():
-        await msg.add_reaction(emoji)
-        await asyncio.sleep(1)  # Prevent Discord rate limit
-
-    global pronoun_message_id
-    pronoun_message_id = msg.id
-
-    await interaction.response.send_message("✅ Pronoun selection message posted!", ephemeral=True)
-
-@client.event
-async def on_raw_reaction_add(payload):
-    if payload.message_id != pronoun_message_id:
-        return
-
-    guild = client.get_guild(payload.guild_id)
-    member = guild.get_member(payload.user_id)
-    if member.bot:
-        return
-
-    role_name = emoji_to_role.get(str(payload.emoji.name))
-    if not role_name:
-        return
-
-    role = discord.utils.get(guild.roles, name=role_name)
-    if role:
-        await member.add_roles(role)
-
-@client.event
-async def on_raw_reaction_remove(payload):
-    if payload.message_id != pronoun_message_id:
-        return
-
-    guild = client.get_guild(payload.guild_id)
-    member = guild.get_member(payload.user_id)
-    if not member:
-        return
-
-    role_name = emoji_to_role.get(str(payload.emoji.name))
-    if not role_name:
-        return
-
-    role = discord.utils.get(guild.roles, name=role_name)
-    if role:
-        await member.remove_roles(role)
 
 
 webServer.keep_alive()
