@@ -123,6 +123,12 @@ async def cancel_schedule(interaction: discord.Interaction):
 
     await interaction.response.send_message("🗑️ Your most recent scheduled message was cancelled.", ephemeral=True)
 
+@client.tree.command(name="speak", description="Make Meow Bot say something.")
+@app_commands.describe(message="What Meow Bot should say")
+async def speak(interaction: discord.Interaction, message: str):
+    await interaction.response.defer(ephemeral=True)
+    await interaction.channel.send(message)
+
 
 webServer.keep_alive()
 
