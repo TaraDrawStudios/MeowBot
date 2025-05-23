@@ -41,7 +41,7 @@ class Client(discord.Client):
         while not self.is_closed():
             now = datetime.datetime.now(pytz.timezone('US/Eastern'))
 
-            if now.hour == 9 and now.minute == 55 and not sent_today:
+            if now.hour == 9 and now.minute == 00 and not sent_today:
                 if channel:
                     await channel.send("☀️ @everyone Good meowrning everyone! 🐾")
                     sent_today = True
