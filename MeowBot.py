@@ -6,6 +6,7 @@ import asyncio
 import datetime
 import pytz
 
+token = os.environ["discordkey"]
 
 class Client(discord.Client):
     def __init__(self, *, intents: discord.Intents):
@@ -124,5 +125,4 @@ async def cancel_schedule(interaction: discord.Interaction):
 
 
 
-token = os.environ["TOKEN"]
 client.run(token)
