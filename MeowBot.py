@@ -168,6 +168,7 @@ async def setup_pronouns(interaction: discord.Interaction):
 
     for emoji in emoji_to_role.keys():
         await msg.add_reaction(emoji)
+        await asyncio.sleep(1)  # Prevent Discord rate limit
 
     global pronoun_message_id
     pronoun_message_id = msg.id
