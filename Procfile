@@ -1,1 +1,1 @@
-worker: python MeowBot.py
+web: python MeowBot.py
