@@ -81,9 +81,9 @@ class Client(discord.Client):
 #CHANNEL IDS
 announcements = 1374917836278857769
 welcomeMessage = 1375182087476215838
+
 # Scheduled message storage
 scheduled_messages = []  # list of tuples: (send_time, channel_id, message_text)
-
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -134,6 +134,8 @@ async def cancel_schedule(interaction: discord.Interaction):
 async def speak(interaction: discord.Interaction, message: str):
     await interaction.response.defer(ephemeral=True)
     await interaction.channel.send(message)
+
+
 
 
 webServer.keep_alive()
