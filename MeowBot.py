@@ -32,20 +32,25 @@ class Client(discord.Client):
 
 
 #Daily Message  
-    async def send_daily_message(self):
+     async def send_daily_message(self):
         await self.wait_until_ready()
         channel = self.get_channel(announcements)
+
+        sent_today = False
 
         while not self.is_closed():
             now = datetime.datetime.now(pytz.timezone('US/Eastern'))
 
-            # Send at exactly 9:00 AM Eastern Time
-            if now.hour == 9 and now.minute == 0:
+            if now.hour == 9 and now.minute == 46 and not sent_today:
                 if channel:
                     await channel.send("☀️ @everyone Good meowrning everyone! 🐾")
-                await asyncio.sleep(60)  # Avoid sending multiple times that minute
+                    sent_today = True
 
-            await asyncio.sleep(30)  # Check twice a minute
+            # Reset the flag at midnight
+            if now.hour == 0 and now.minute == 1:
+                sent_today = False
+
+            await asyncio.sleep(30)
 
 # Check schedule
     async def check_scheduled_messages(self):
