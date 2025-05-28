@@ -5,8 +5,30 @@ import webServer
 import asyncio
 import datetime
 import pytz
+import json
 
 token = os.environ["discordkey"]
+
+# Role promotion tiers
+ROLE_TIERS = [
+    ("Scout", 10),
+    ("Archer", 20),
+    ("Mage", 30),
+    ("Knight", 40),
+    ("General", 50)
+]
+
+POINTS_FILE = "user_points.json"
+
+def load_points():
+    if os.path.exists(POINTS_FILE):
+        with open(POINTS_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_points(data):
+    with open(POINTS_FILE, "w") as f:
+        json.dump(data, f, indent=4)
 
 class Client(discord.Client):
     def __init__(self, *, intents: discord.Intents):
@@ -134,6 +156,48 @@ async def cancel_schedule(interaction: discord.Interaction):
 async def speak(interaction: discord.Interaction, message: str):
     await interaction.response.defer(ephemeral=True)
     await interaction.channel.send(message)
+
+@client.tree.command(name="award", description="Award a user with points for challenges.")
+@app_commands.describe(user="User to award", points="Number of points to award")
+async def award(interaction: discord.Interaction, user: discord.Member, points: int):
+    data = load_points()
+    user_id = str(user.id)
+
+    if user_id not in data:
+        data[user_id] = {"points": 0, "current_role": None}
+
+    # If user is already maxed at General, block further points
+    if data[user_id]["points"] >= 50:
+        await interaction.response.send_message(f"🎖️ {user.display_name} is already a General! No more points awarded.", ephemeral=True)
+        return
+
+    data[user_id]["points"] += points
+    if data[user_id]["points"] > 50:
+        data[user_id]["points"] = 50  # Cap at 50
+
+    new_role_name = None
+    for role_name, required_points in ROLE_TIERS:
+        if data[user_id]["points"] >= required_points:
+            new_role_name = role_name
+
+    current_role_name = data[user_id].get("current_role")
+    if new_role_name and new_role_name != current_role_name:
+        # Update role
+        guild = interaction.guild
+        new_role = discord.utils.get(guild.roles, name=new_role_name)
+        if new_role:
+            # Remove previous rank roles
+            for role_name, _ in ROLE_TIERS:
+                role = discord.utils.get(guild.roles, name=role_name)
+                if role in user.roles:
+                    await user.remove_roles(role)
+
+            await user.add_roles(new_role)
+            data[user_id]["current_role"] = new_role_name
+            await interaction.channel.send(f"🥳 {user.mention} has ranked up to **{new_role_name}**!")
+
+    save_points(data)
+    await interaction.response.send_message(f"✅ {user.display_name} now has {data[user_id]['points']} points.", ephemeral=True)
 
 
 
