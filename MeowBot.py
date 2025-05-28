@@ -11,11 +11,11 @@ token = os.environ["discordkey"]
 
 # Role promotion tiers
 ROLE_TIERS = [
-    ("Scout", 10),
-    ("Archer", 20),
-    ("Mage", 30),
-    ("Knight", 40),
-    ("General", 50)
+    ("Scout", 0),
+    ("Archer", 10),
+    ("Mage", 20),
+    ("Knight", 30),
+    ("General", 40)
 ]
 
 POINTS_FILE = "user_points.json"
