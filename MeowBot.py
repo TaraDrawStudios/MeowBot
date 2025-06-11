@@ -156,6 +156,9 @@ async def cancel_schedule(interaction: discord.Interaction):
 async def speak(interaction: discord.Interaction, message: str):
     await interaction.response.defer(ephemeral=True)
     await interaction.channel.send(message)
+    await interaction.followup.send("✅ Message sent!", ephemeral=True)
+
+    
 
 @client.tree.command(name="award", description="Award a user with points for challenges.")
 @app_commands.describe(user="User to award", points="Number of points to award")
