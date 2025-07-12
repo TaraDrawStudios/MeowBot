@@ -64,7 +64,7 @@ class Client(discord.Client):
             now = datetime.datetime.now(pytz.timezone('US/Eastern'))
             today_str = now.strftime("%Y-%m-%d")
 
-            if now.hour == 20 and now.minute == 17 and last_sent_date != today_str:
+            if now.hour == 21 and now.minute == 00 and last_sent_date != today_str:
                 if channel:
                     await channel.send("☀️ @everyone Good meowrning everyone! 🐾")
                     last_sent_date = today_str
