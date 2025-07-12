@@ -57,20 +57,17 @@ class Client(discord.Client):
     async def send_daily_message(self):
         await self.wait_until_ready()
         channel = self.get_channel(announcements)
-
-        sent_today = False
+        
+        last_sent_date = None  # Track date instead of boolean
 
         while not self.is_closed():
             now = datetime.datetime.now(pytz.timezone('US/Eastern'))
+            today_str = now.strftime("%Y-%m-%d")
 
-            if now.hour == 9 and now.minute == 00 and not sent_today:
+            if now.hour == 20 and now.minute == 17 and last_sent_date != today_str:
                 if channel:
                     await channel.send("☀️ @everyone Good meowrning everyone! 🐾")
-                    sent_today = True
-
-            # Reset the flag at midnight
-            if now.hour == 0 and now.minute == 1:
-                sent_today = False
+                    last_sent_date = today_str
 
             await asyncio.sleep(30)
 
